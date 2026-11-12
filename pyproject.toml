@@ -1,0 +1,10 @@
+[project]
+name = "mutua-terrain"
+version = "0.1.0"
+description = "Observatoire de lecture des coopératives non financières du Québec, à côté de Mutua."
+requires-python = ">=3.11"
+readme = "README.md"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

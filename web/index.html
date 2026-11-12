@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Terrain — atelier des coopératives</title>
+  <link rel="stylesheet" href="app.css">
+</head>
+<body>
+  <header class="mast">
+    <div>
+      <p class="kicker">Mutua Terrain · atelier</p>
+      <h1>Le terrain québécois</h1>
+    </div>
+    <p class="lede">
+      Carte des 17 régions administratives. Le registre donne chaque coopérative
+      non financière. L’enquête donne les mutuelles, les coopératives financières
+      et les organismes d’économie sociale. L’action communautaire autonome n’est
+      pas sur cette carte. Ce n’est pas un registre officiel et ce n’est pas un
+      avis juridique.
+    </p>
+  </header>
+
+  <section class="limits">
+    <p>
+      Une ligne égale une personne morale. Le fichier du ministère ne dit pas le
+      chiffre d’affaires, les emplois ni les membres de la coopérative. Une
+      absence au recensement suivant n’est pas, à elle seule, une fermeture. Un
+      «&nbsp;N&nbsp;» sur les ristournes ou les intérêts veut dire que les statuts
+      ne les interdisent pas — pas qu’un versement a été observé.
+    </p>
+    <p>
+      L’enquête de l’Institut de la statistique du Québec porte sur 2022. Elle
+      réunit toutes les coopératives, toutes les mutuelles, et les organismes à
+      but non lucratif qui vendent un bien ou un service et répondent aux six
+      principes de la Loi sur l’économie sociale. On ne l’additionne pas au
+      registre : l’année, le périmètre et la méthode ne sont pas les mêmes. Les
+      mutuelles ne sont pas séparées des coopératives financières à l’échelle
+      d’une région. Côte-Nord et Nord-du-Québec y forment une seule estimation.
+    </p>
+  </section>
+
+  <section class="carte-zone" aria-label="Carte des régions administratives">
+    <div class="carte-entete">
+      <h2>Régions administratives</h2>
+      <p id="bandeau" class="bandeau">Chargement de la carte…</p>
+    </div>
+    <div class="couches" role="radiogroup" aria-label="Ce que la couleur montre">
+      <label><input type="radio" name="couche" value="meie" checked> Registre</label>
+      <label><input type="radio" name="couche" value="cnf"> Coop. non financières</label>
+      <label><input type="radio" name="couche" value="fm"> Coop. financières et mutuelles</label>
+      <label><input type="radio" name="couche" value="obnl"> OBNL d’économie sociale</label>
+      <label><input type="radio" name="couche" value="sub-obnl"> Subventions des OBNL</label>
+      <label><input type="radio" name="couche" value="sub-coop"> Subventions des coop. et mutuelles</label>
+    </div>
+    <p id="couche-lire" class="couche-lire"></p>
+    <div class="carte-layout">
+      <div>
+        <svg id="carte" viewBox="0 0 640 760" role="img" aria-labelledby="carte-titre">
+          <title id="carte-titre">Québec, régions administratives</title>
+        </svg>
+        <p id="carte-legende" class="carte-legende"></p>
+        <p id="carte-lecture" class="carte-lecture"></p>
+      </div>
+      <article id="region-card" class="region-card" aria-live="polite"></article>
+    </div>
+    <div class="table-scroll">
+      <table id="regions">
+        <caption>Registre du ministère et estimations de l’enquête, par région</caption>
+        <thead>
+          <tr>
+            <th>Région</th>
+            <th>Registre</th>
+            <th>Coop. non fin.</th>
+            <th>Fin. et mutuelles</th>
+            <th>OBNL</th>
+            <th>Subv. OBNL</th>
+            <th>Subv. coop.</th>
+          </tr>
+        </thead>
+        <tbody id="regions-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <h2 class="section-titre">D’un extrait à l’autre</h2>
+  <p class="lede">
+    Chaque coopérative non financière est suivie dans quatre recensements.
+    Le siècle des dates est repris de l’année complète quand elle existe.
+  </p>
+
+  <p id="statut" class="statut" role="status">Chargement des extraits…</p>
+
+  <section class="range" aria-label="Extraits comparés">
+    <label>De
+      <select id="de"></select>
+    </label>
+    <label>À
+      <select id="a"></select>
+    </label>
+    <div class="metriques" aria-label="Mouvement entre les deux extraits">
+      <p><span id="met-gauche">—</span><small>au départ</small></p>
+      <p><span id="met-entrees">—</span><small>entrées</small></p>
+      <p><span id="met-sorties">—</span><small>sorties</small></p>
+      <p><span id="met-noms">—</span><small>noms modifiés</small></p>
+      <p><span id="met-droite">—</span><small>à l’arrivée</small></p>
+    </div>
+  </section>
+
+  <section class="graphique" aria-label="Stock par extrait">
+    <svg id="graphique" viewBox="0 0 680 220" role="img"></svg>
+    <table id="serie">
+      <caption>Coopératives actives à chaque extrait</caption>
+      <thead><tr id="serie-head"></tr></thead>
+      <tbody id="serie-body"></tbody>
+    </table>
+  </section>
+
+  <div class="workspace">
+    <section class="liste-zone" aria-label="Objets">
+      <div class="toolbar">
+        <label>Recherche
+          <input id="q" type="search" placeholder="Nom, ville, NEQ, adresse" autocomplete="off">
+        </label>
+        <label>Catégorie
+          <select id="categorie"><option value="">Toutes</option></select>
+        </label>
+        <label>Mouvement
+          <select id="mode">
+            <option value="toutes">Toutes</option>
+            <option value="entrees">Entrées</option>
+            <option value="sorties">Sorties</option>
+            <option value="renoms">Nom modifié</option>
+            <option value="categories">Catégorie modifiée</option>
+          </select>
+        </label>
+      </div>
+      <p id="filtre-actif" class="filtre-actif" hidden></p>
+      <ol id="liste" class="liste"></ol>
+      <button id="suite" type="button" hidden>Afficher la suite</button>
+    </section>
+    <article id="fiche" class="fiche" aria-live="polite">
+      <p class="fiche-vide">Choisis une coopérative. Sa fiche aligne les quatre observations et le secteur autour d’elle.</p>
+    </article>
+  </div>
+
+  <footer>
+    <p>
+      Ministère de l’Économie, de l’Innovation et de l’Énergie.
+      <em>Données administratives des coopératives non financières</em>,
+      [Jeu de données], dans Données Québec, 2019, mis à jour le 20 janvier 2026.
+      Extraits du 1<sup>er</sup> décembre 2021, du 25 avril 2023, du 15 août 2024
+      et du 19 novembre 2025. Attribution (CC-BY 4.0).
+      <a href="https://www.donneesquebec.ca/recherche/dataset/donnees-administratives-des-cooperatives-non-financieres">Données Québec</a>.
+    </p>
+    <p>
+      Contexte économique : Statistique Canada, tableau 33-10-1095-01
+      (entreprises avec employés, Québec, période 2025-07) et tableau 14-10-0202-01
+      (emploi salarié annuel). Licence du gouvernement ouvert – Canada.
+      Ces chiffres décrivent le secteur entier, pas la coopérative sélectionnée.
+    </p>
+    <p>
+      Institut de la statistique du Québec.
+      <em>Enquête auprès des organismes à but non lucratif, des coopératives et des mutuelles 2023</em>,
+      année de référence 2022, fiches régionales publiées le 11 juillet 2025.
+      Les effectifs régionaux sont des estimations arrondies.
+      <a href="https://statistique.quebec.ca/fr/document/leconomie-sociale-au-quebec-portrait-statistique">Portrait statistique</a>.
+    </p>
+    <p>
+      Contours : couche Administratives du service public « Régions du Québec »
+      (découpage SDA20K, version V2022-02), généralisée et dessinée en WGS84.
+      La couleur d’une région ne localise pas les sièges à l’intérieur de celle-ci.
+    </p>
+  </footer>
+  <script src="app.js"></script>
+</body>
+</html>

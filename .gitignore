@@ -1,0 +1,9 @@
+__pycache__/
+.pytest_cache/
+.venv/
+raw/
+web/data/*.json
+web/data/*.geojson
+node_modules/
+test-results/
+playwright-report/
